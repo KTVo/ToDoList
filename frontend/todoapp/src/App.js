@@ -1,25 +1,50 @@
-import logo from './logo.svg';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import { Component } from 'react';
+
+class App extends Component {
+
+  constructor(props)
+  {
+    super(props);
+    this.state = {
+      notes: []
+    }
+  }
+
+  API_URL = "http://localhost:5009/";
+
+  //Runs when page refreshes
+  componentDidMount()
+  {
+    this.refreshNotes();
+  }
+  
+  //Method below will get notes from the API for this component
+  async refreshNotes() {
+
+    fetch(this.API_URL+"api/ToDoApp/GetNotes")
+      .then(response=>response.json())
+      .then(data =>{
+        this.setState({notes: data});
+      })
+  }
+
+  render()
+  {
+    const {notes} = this.state;
+    return (
+      <div className="App">
+        <h2>Todo App</h2>
+        {notes.map(
+          note =>
+            <p>
+              <b>* {note.description}</b>
+            </p>
+        )}
+      </div>
+    );
+  }
 }
 
 export default App;

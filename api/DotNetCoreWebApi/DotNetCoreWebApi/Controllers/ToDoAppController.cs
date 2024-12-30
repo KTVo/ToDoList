@@ -101,5 +101,36 @@ namespace DotNetCoreWebApi.Controllers
 
             return new JsonResult("Deleted Sucessfully");
         }
+
+        [HttpPost]
+        [Route("EditNotes")]
+        public JsonResult EditNotes(int id, [FromForm] string newNotes)
+        {
+            string query = "update dbo.Notes set description = @newNotes where id = @id";
+            DataTable table = new DataTable();
+
+            string sqlDatasource = _configuration.GetConnectionString("todoAppDBCon");
+
+
+            SqlDataReader myReader;
+
+            using (SqlConnection myCon = new SqlConnection(sqlDatasource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@newNotes", newNotes);
+                    myCommand.Parameters.AddWithValue("@id", id);
+
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+
+            }
+
+            return new JsonResult("Edited Sucessfully");
+        }
     }
 }
