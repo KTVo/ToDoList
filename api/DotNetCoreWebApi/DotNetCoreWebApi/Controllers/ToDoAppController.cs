@@ -102,11 +102,12 @@ namespace DotNetCoreWebApi.Controllers
             return new JsonResult("Deleted Sucessfully");
         }
 
-        [HttpPost]
-        [Route("EditNotes")]
-        public JsonResult EditNotes(int id, [FromForm] string newNotes)
+        [HttpDelete]
+        [Route("ClearAll")]
+        public JsonResult ClearAll()
         {
-            string query = "update dbo.Notes set description = @newNotes where id = @id";
+            string query = "truncate table dbo.Notes";
+
             DataTable table = new DataTable();
 
             string sqlDatasource = _configuration.GetConnectionString("todoAppDBCon");
@@ -119,7 +120,35 @@ namespace DotNetCoreWebApi.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
-                    myCommand.Parameters.AddWithValue("@newNotes", newNotes);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+
+            }
+
+            return new JsonResult("Tasks cleared Sucessfully");
+        }
+
+        [HttpPost]
+        [Route("EditNotes")]
+        public JsonResult EditNotes(int id, [FromForm] string editNotes)
+        {
+            string query = "update dbo.Notes set description = @editNotes where id = @id";
+            DataTable table = new DataTable();
+
+            string sqlDatasource = _configuration.GetConnectionString("todoAppDBCon");
+
+
+            SqlDataReader myReader;
+
+            using (SqlConnection myCon = new SqlConnection(sqlDatasource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@editNotes", editNotes);
                     myCommand.Parameters.AddWithValue("@id", id);
 
                     myReader = myCommand.ExecuteReader();
